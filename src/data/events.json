@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "name": "Spring Rally",
+      "date": "2024-04-21T20:00:00-05:00",
+      "location": "Central Park",
+      "description": "Annual spring rally event with multiple categories"
+    },
+    {
+      "id": 2,
+      "name": "Summer Challenge",
+      "date": "2024-06-15T09:00:00-05:00",
+      "location": "Mountain Trail",
+      "description": "Summer challenge series kickoff"
+    },
+    {
+      "id": 3,
+      "name": "Fall Classic",
+      "date": "2024-09-22T10:00:00-05:00",
+      "location": "Forest Reserve",
+      "description": "Traditional fall rally event"
+    }
+  ]
+}

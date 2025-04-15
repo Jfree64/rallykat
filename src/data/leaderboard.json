@@ -1,0 +1,39 @@
+{
+  "leaderboard": [
+    {
+      "id": 1,
+      "name": "John Smith",
+      "ranking": 1,
+      "category": "Expert",
+      "points": 1250
+    },
+    {
+      "id": 2,
+      "name": "Sarah Johnson",
+      "ranking": 2,
+      "category": "Expert",
+      "points": 1150
+    },
+    {
+      "id": 3,
+      "name": "Mike Brown",
+      "ranking": 3,
+      "category": "Intermediate",
+      "points": 980
+    },
+    {
+      "id": 4,
+      "name": "Emily Davis",
+      "ranking": 4,
+      "category": "Intermediate",
+      "points": 920
+    },
+    {
+      "id": 5,
+      "name": "Alex Wilson",
+      "ranking": 5,
+      "category": "Beginner",
+      "points": 750
+    }
+  ]
+}
