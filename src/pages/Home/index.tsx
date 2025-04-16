@@ -19,11 +19,8 @@ const formatDate = (date: Date) => {
   const dayOfWeek = days[date.getDay()];
   const month = months[date.getMonth()];
   const day = date.getDate();
-  const hours = date.getHours();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = hours % 12 || 12;
 
-  return `${dayOfWeek} ${month} ${day}, ${formattedHours} ${ampm}`;
+  return `${dayOfWeek} ${month} ${day}`;
 };
 
 const calculateTimeLeft = (targetDate: Date) => {
@@ -70,7 +67,7 @@ export default function Home() {
         </div>
       ))}
       <p>
-        @ WILLOUGHBY PLAYGROUND. REG BEGINS AT 8 PM.
+        @ WILLOUGHBY PLAYGROUND. REG BEGINS AT 8 PM. RACING AT 9 PM. 4-16 PLAYERS. AGES 4+.
       </p>
     </div>
   );
