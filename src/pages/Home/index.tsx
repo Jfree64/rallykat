@@ -18,7 +18,7 @@ const formatDate = (date: Date) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const dayOfWeek = days[date.getDay()];
   const month = months[date.getMonth()];
-  const day = date.getDate();
+  const day = date.getDate().toString().padStart(2, '0');
 
   return `${dayOfWeek} ${month} ${day}`;
 };
@@ -41,7 +41,7 @@ const calculateTimeLeft = (targetDate: Date) => {
     .toString()
     .padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds
       .toString()
-      .padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+      .padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`.toUpperCase();
 };
 
 export default function Home() {
