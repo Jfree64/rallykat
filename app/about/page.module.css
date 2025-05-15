@@ -1,0 +1,21 @@
+.about {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+  text-transform: uppercase;
+}
+
+.about a {
+  font-weight: bold;
+  color: #ea36af;
+  text-decoration: none;
+}
+
+.about a:hover {
+  text-shadow: 0 0 10px #ea36af;
+}
