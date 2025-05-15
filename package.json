@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sanity/vision": "^3.88.3",
     "@types/mapbox-gl": "^3.4.1",
     "date-fns": "^4.1.0",
     "mapbox-gl": "^3.11.0",
