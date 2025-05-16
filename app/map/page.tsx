@@ -17,7 +17,7 @@ export default function Map() {
 
   useEffect(() => {
     // Load GPX file
-    fetch('/rk1.gpx')
+    fetch('/rk3.gpx')
       .then(response => response.text())
       .then(gpxContent => {
         const points = parseGPX(gpxContent)
@@ -33,8 +33,9 @@ export default function Map() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: MAPBOX_STYLE,
-      center: [-73.9471, 40.6944],
+      center: [-73.94694266073284, 40.69450824819825],
       zoom: 18,
+      scrollZoom: false,
       pitch: 45,
       antialias: true
     })
@@ -63,7 +64,9 @@ export default function Map() {
     return () => {
       window.removeEventListener('resize', handleResize)
       if (map.current) {
-        map.current.remove()
+        if (map.current && !map.current._removed) {
+          map.current.remove()
+        }
       }
     }
   }, [])

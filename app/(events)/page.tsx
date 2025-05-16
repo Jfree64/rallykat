@@ -29,20 +29,20 @@ const calculateTimeLeft = (targetDate: Date) => {
   const diff = targetDate.getTime() - now.getTime()
 
   if (diff <= 0) {
-    return '00:00:00:00:00'
+    return '00:00:00:00'
   }
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-  const milliseconds = Math.floor((diff % 1000) / 10)
 
   return `${days.toString().padStart(2, '0')}:${hours
     .toString()
     .padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds
-      .toString()
-      .padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`.toUpperCase()
+      .toString().padStart(2, '0')
+      .toUpperCase()
+    }`
 }
 
 export default function Home() {
@@ -64,7 +64,7 @@ export default function Home() {
     <div className={s.home}>
       {events.map((event, i) => (
         <div key={i} className={s.raceItem}>
-          <div>{event.name}</div> <div>{formatDate(event.date)}</div><div>{timeLefts[event.name] || '00:00:00:00:00'}</div>
+          <div>{event.name}</div> <div>{formatDate(event.date)}</div><div>{timeLefts[event.name] || '00:00:00:00'}</div>
         </div>
       ))}
       <p>

@@ -43,11 +43,26 @@ export default {
       type: "string",
     }
   ],
+  orderings: [
+    {
+      title: "Score",
+      name: "score",
+      by: [{ field: "score", direction: "desc" }],
+    },
+  ],
 
   preview: {
     select: {
-      title: "name",
-      subtitle: "handle",
+      name: "name",
+      score: "score",
+      handle: "handle",
+    },
+    prepare(selection: any) {
+      const { name, score, handle } = selection
+      return {
+        title: name,
+        subtitle: `${score} - ${handle}`,
+      }
     },
   },
 };
