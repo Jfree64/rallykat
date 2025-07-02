@@ -17,7 +17,7 @@ export default function Map() {
 
   useEffect(() => {
     // Load GPX file
-    fetch('/rk3.gpx')
+    fetch('/rk5.gpx')
       .then(response => response.text())
       .then(gpxContent => {
         const points = parseGPX(gpxContent)
@@ -33,7 +33,7 @@ export default function Map() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: MAPBOX_STYLE,
-      center: [-73.94694266073284, 40.69450824819825],
+      center: [-73.9414465, 40.693618],
       zoom: 18,
       scrollZoom: false,
       pitch: 45,
@@ -92,7 +92,8 @@ export default function Map() {
           type: 'LineString',
           coordinates: trackPoints.map(point => [point.lon, point.lat])
         }
-      }
+      },
+      lineMetrics: true
     })
 
     map.current.addLayer({
@@ -104,7 +105,92 @@ export default function Map() {
         'line-cap': 'round'
       },
       paint: {
-        'line-color': '#00ff00',
+        'line-gradient': [
+          'interpolate',
+          ['linear'],
+          ['line-progress'],
+          0, '#ff0000',     // Red
+          0.0125, '#ffa500', // Orange
+          0.025, '#ffff00',  // Yellow
+          0.0375, '#00ff00', // Green
+          0.05, '#00BFFF',   // Light Blue
+          0.0625, '#9370DB', // Medium Purple
+          0.075, '#ff0000',  // Red
+          0.0875, '#ffa500', // Orange
+          0.1, '#ffff00',    // Yellow
+          0.1125, '#00ff00', // Green
+          0.125, '#00BFFF',  // Light Blue
+          0.1375, '#9370DB', // Medium Purple
+          0.15, '#ff0000',   // Red
+          0.1625, '#ffa500', // Orange
+          0.175, '#ffff00',  // Yellow
+          0.1875, '#00ff00', // Green
+          0.2, '#00BFFF',    // Light Blue
+          0.2125, '#9370DB', // Medium Purple
+          0.225, '#ff0000',  // Red
+          0.2375, '#ffa500', // Orange
+          0.25, '#ffff00',   // Yellow
+          0.2625, '#00ff00', // Green
+          0.275, '#00BFFF',  // Light Blue
+          0.2875, '#9370DB', // Medium Purple
+          0.3, '#ff0000',    // Red
+          0.3125, '#ffa500', // Orange
+          0.325, '#ffff00',  // Yellow
+          0.3375, '#00ff00', // Green
+          0.35, '#00BFFF',   // Light Blue
+          0.3625, '#9370DB', // Medium Purple
+          0.375, '#ff0000',  // Red
+          0.3875, '#ffa500', // Orange
+          0.4, '#ffff00',    // Yellow
+          0.4125, '#00ff00', // Green
+          0.425, '#00BFFF',  // Light Blue
+          0.4375, '#9370DB', // Medium Purple
+          0.45, '#ff0000',   // Red
+          0.4625, '#ffa500', // Orange
+          0.475, '#ffff00',  // Yellow
+          0.4875, '#00ff00', // Green
+          0.5, '#00BFFF',    // Light Blue
+          0.5125, '#9370DB', // Medium Purple
+          0.525, '#ff0000',  // Red
+          0.5375, '#ffa500', // Orange
+          0.55, '#ffff00',   // Yellow
+          0.5625, '#00ff00', // Green
+          0.575, '#00BFFF',  // Light Blue
+          0.5875, '#9370DB', // Medium Purple
+          0.6, '#ff0000',    // Red
+          0.6125, '#ffa500', // Orange
+          0.625, '#ffff00',  // Yellow
+          0.6375, '#00ff00', // Green
+          0.65, '#00BFFF',   // Light Blue
+          0.6625, '#9370DB', // Medium Purple
+          0.675, '#ff0000',  // Red
+          0.6875, '#ffa500', // Orange
+          0.7, '#ffff00',    // Yellow
+          0.7125, '#00ff00', // Green
+          0.725, '#00BFFF',  // Light Blue
+          0.7375, '#9370DB', // Medium Purple
+          0.75, '#ff0000',   // Red
+          0.7625, '#ffa500', // Orange
+          0.775, '#ffff00',  // Yellow
+          0.7875, '#00ff00', // Green
+          0.8, '#00BFFF',    // Light Blue
+          0.8125, '#9370DB', // Medium Purple
+          0.825, '#ff0000',  // Red
+          0.8375, '#ffa500', // Orange
+          0.85, '#ffff00',   // Yellow
+          0.8625, '#00ff00', // Green
+          0.875, '#00BFFF',  // Light Blue
+          0.8875, '#9370DB', // Medium Purple
+          0.9, '#ff0000',    // Red
+          0.9125, '#ffa500', // Orange
+          0.925, '#ffff00',  // Yellow
+          0.9375, '#00ff00', // Green
+          0.95, '#00BFFF',   // Light Blue
+          0.9625, '#9370DB', // Medium Purple
+          0.975, '#ff0000',  // Red
+          0.9875, '#ffa500', // Orange
+          1, '#ffff00'       // Yellow
+        ],
         'line-width': 8,
         'line-opacity': 1,
         'line-blur': 2,
