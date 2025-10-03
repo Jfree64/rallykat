@@ -8,32 +8,64 @@ import styles from './page.module.css'
 
 const MAPBOX_STYLE = 'mapbox://styles/jfree64/cm9j35wvk009401s5a8oqb3dt'
 
+function getBoundingBoxCenter(points: TrackPoint[]): [number, number] {
+  let minLat = Infinity
+  let maxLat = -Infinity
+  let minLon = Infinity
+  let maxLon = -Infinity
+
+  for (const p of points) {
+    if (p.lat < minLat) minLat = p.lat
+    if (p.lat > maxLat) maxLat = p.lat
+    if (p.lon < minLon) minLon = p.lon
+    if (p.lon > maxLon) maxLon = p.lon
+  }
+
+  const centerLon = (minLon + maxLon) / 2
+  const centerLat = (minLat + maxLat) / 2
+  return [centerLon, centerLat]
+}
+
 export default function Map() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const rotationRef = useRef<number>(0)
   const [trackPoints, setTrackPoints] = useState<TrackPoint[]>([])
+  const [gpxCenter, setGpxCenter] = useState<[number, number] | null>(null)
   const [styleLoaded, setStyleLoaded] = useState(false)
+  const [loadingError, setLoadingError] = useState<string | null>(null)
 
   useEffect(() => {
     // Load GPX file
-    fetch('/rk5.gpx')
-      .then(response => response.text())
+    fetch('/rk11.gpx')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load GPX file: ${response.status}`)
+        }
+        return response.text()
+      })
       .then(gpxContent => {
         const points = parseGPX(gpxContent)
+        console.log('Parsed track points:', points.length, points.slice(0, 3))
         setTrackPoints(points)
+        if (points.length > 0) {
+          setGpxCenter(getBoundingBoxCenter(points))
+        }
       })
-      .catch(error => console.error('Error loading GPX file:', error))
+      .catch(error => {
+        console.error('Error loading GPX file:', error)
+        setLoadingError(error.message)
+      })
   }, [])
 
   useEffect(() => {
-    if (!mapContainer.current || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return
+    if (!mapContainer.current || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN || !gpxCenter) return
 
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: MAPBOX_STYLE,
-      center: [-73.9414465, 40.693618],
+      center: gpxCenter,
       zoom: 18,
       scrollZoom: false,
       pitch: 45,
@@ -42,7 +74,7 @@ export default function Map() {
 
     const rotateMap = () => {
       if (!map.current) return
-      rotationRef.current += 0.1
+      rotationRef.current += 0.2
       map.current.rotateTo(rotationRef.current, { duration: 0 })
       requestAnimationFrame(rotateMap)
     }
@@ -69,10 +101,12 @@ export default function Map() {
         }
       }
     }
-  }, [])
+  }, [gpxCenter])
 
   useEffect(() => {
     if (!map.current || !styleLoaded || trackPoints.length === 0) return
+
+    console.log('Adding track to map with', trackPoints.length, 'points')
 
     // Remove existing track layer if it exists
     if (map.current.getLayer('track')) {
@@ -82,17 +116,22 @@ export default function Map() {
       map.current.removeSource('track')
     }
 
+    // Create the track data - Mapbox expects [longitude, latitude] order
+    const trackData: GeoJSON.Feature<GeoJSON.LineString> = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: trackPoints.map(point => [point.lon, point.lat])
+      }
+    }
+
+    console.log('Track data:', trackData)
+
     // Add the track to the map
     map.current.addSource('track', {
       type: 'geojson',
-      data: {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates: trackPoints.map(point => [point.lon, point.lat])
-        }
-      },
+      data: trackData,
       lineMetrics: true
     })
 
@@ -105,106 +144,46 @@ export default function Map() {
         'line-cap': 'round'
       },
       paint: {
+        'line-width': 4,
+        'line-opacity': 1,
+        'line-blur': 0,
+        'line-gap-width': 0,
+        'line-emissive-strength': 1,
         'line-gradient': [
           'interpolate',
           ['linear'],
           ['line-progress'],
-          0, '#ff0000',     // Red
-          0.0125, '#ffa500', // Orange
-          0.025, '#ffff00',  // Yellow
-          0.0375, '#00ff00', // Green
-          0.05, '#00BFFF',   // Light Blue
-          0.0625, '#9370DB', // Medium Purple
-          0.075, '#ff0000',  // Red
-          0.0875, '#ffa500', // Orange
-          0.1, '#ffff00',    // Yellow
-          0.1125, '#00ff00', // Green
-          0.125, '#00BFFF',  // Light Blue
-          0.1375, '#9370DB', // Medium Purple
-          0.15, '#ff0000',   // Red
-          0.1625, '#ffa500', // Orange
-          0.175, '#ffff00',  // Yellow
-          0.1875, '#00ff00', // Green
-          0.2, '#00BFFF',    // Light Blue
-          0.2125, '#9370DB', // Medium Purple
-          0.225, '#ff0000',  // Red
-          0.2375, '#ffa500', // Orange
-          0.25, '#ffff00',   // Yellow
-          0.2625, '#00ff00', // Green
-          0.275, '#00BFFF',  // Light Blue
-          0.2875, '#9370DB', // Medium Purple
-          0.3, '#ff0000',    // Red
-          0.3125, '#ffa500', // Orange
-          0.325, '#ffff00',  // Yellow
-          0.3375, '#00ff00', // Green
-          0.35, '#00BFFF',   // Light Blue
-          0.3625, '#9370DB', // Medium Purple
-          0.375, '#ff0000',  // Red
-          0.3875, '#ffa500', // Orange
-          0.4, '#ffff00',    // Yellow
-          0.4125, '#00ff00', // Green
-          0.425, '#00BFFF',  // Light Blue
-          0.4375, '#9370DB', // Medium Purple
-          0.45, '#ff0000',   // Red
-          0.4625, '#ffa500', // Orange
-          0.475, '#ffff00',  // Yellow
-          0.4875, '#00ff00', // Green
-          0.5, '#00BFFF',    // Light Blue
-          0.5125, '#9370DB', // Medium Purple
-          0.525, '#ff0000',  // Red
-          0.5375, '#ffa500', // Orange
-          0.55, '#ffff00',   // Yellow
-          0.5625, '#00ff00', // Green
-          0.575, '#00BFFF',  // Light Blue
-          0.5875, '#9370DB', // Medium Purple
-          0.6, '#ff0000',    // Red
-          0.6125, '#ffa500', // Orange
-          0.625, '#ffff00',  // Yellow
-          0.6375, '#00ff00', // Green
-          0.65, '#00BFFF',   // Light Blue
-          0.6625, '#9370DB', // Medium Purple
-          0.675, '#ff0000',  // Red
-          0.6875, '#ffa500', // Orange
-          0.7, '#ffff00',    // Yellow
-          0.7125, '#00ff00', // Green
-          0.725, '#00BFFF',  // Light Blue
-          0.7375, '#9370DB', // Medium Purple
-          0.75, '#ff0000',   // Red
-          0.7625, '#ffa500', // Orange
-          0.775, '#ffff00',  // Yellow
-          0.7875, '#00ff00', // Green
-          0.8, '#00BFFF',    // Light Blue
-          0.8125, '#9370DB', // Medium Purple
-          0.825, '#ff0000',  // Red
-          0.8375, '#ffa500', // Orange
-          0.85, '#ffff00',   // Yellow
-          0.8625, '#00ff00', // Green
-          0.875, '#00BFFF',  // Light Blue
-          0.8875, '#9370DB', // Medium Purple
-          0.9, '#ff0000',    // Red
-          0.9125, '#ffa500', // Orange
-          0.925, '#ffff00',  // Yellow
-          0.9375, '#00ff00', // Green
-          0.95, '#00BFFF',   // Light Blue
-          0.9625, '#9370DB', // Medium Purple
-          0.975, '#ff0000',  // Red
-          0.9875, '#ffa500', // Orange
-          1, '#ffff00'       // Yellow
-        ],
-        'line-width': 8,
-        'line-opacity': 1,
-        'line-blur': 2,
-        'line-emissive-strength': 1,
-        'line-gap-width': 0
+          0, '#FF5500',
+          0.5, '#0055FF',
+          1, '#FF5500',
+        ]
       }
     })
 
-    return () => {
-      if (map.current) {
-        map.current.remove()
-      }
+    // Fit the map to the track bounds
+    const bounds = new mapboxgl.LngLatBounds()
+    trackPoints.forEach(point => {
+      bounds.extend([point.lon, point.lat])
+    })
+
+    if (!bounds.isEmpty()) {
+      map.current.fitBounds(bounds, {
+        padding: 50,
+        duration: 1000
+      })
     }
+
   }, [trackPoints, styleLoaded])
+
+  if (loadingError) {
+    return (
+      <div className={styles['map-container']}>
+        <div className={styles.error}>
+          Error loading track: {loadingError}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles['map-container']}>
