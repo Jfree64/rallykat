@@ -1,3 +1,6 @@
-import racer from "./racer";
+import player from "./player";
+import heat from "./heat";
+import event from "./event";
+import series from "./series";
 
-export const schemaTypes = [racer]
+export const schemaTypes = [player, heat, event, series];

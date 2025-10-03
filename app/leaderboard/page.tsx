@@ -16,6 +16,27 @@ export default function Leaderboard() {
   const [players, setPlayers] = useState<Racer[]>([])
   const [loading, setLoading] = useState(true)
 
+  const calculateRank = (index: number, players: Racer[]): number => {
+    if (index === 0) return 1
+    const currentScore = players[index].score
+    const previousScore = players[index - 1].score
+    if (currentScore === previousScore) {
+      return calculateRank(index - 1, players)
+    }
+    return calculateRank(index - 1, players) + 1
+  }
+
+  const getRankSuffix = (rank: number): string => {
+    const lastDigit = rank % 10
+    const lastTwoDigits = rank % 100
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return 'th'
+    if (lastDigit === 1) return 'st'
+    if (lastDigit === 2) return 'nd'
+    if (lastDigit === 3) return 'rd'
+    return 'th'
+  }
+
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
@@ -50,14 +71,17 @@ export default function Leaderboard() {
           <span className={s.player}>Player</span>
           <span className={s.score}>Score</span>
         </div>
-        {players.map((player, index) => (
-          <div key={player._id} className={s.playerItem}>
-            <span className={s.rank}>{index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'}</span>
-            <span className={s.player}>{player.emoji} {player.handle}</span>
-            <span className={s.score}>{player.score}</span>
-          </div>
-        ))}
+        {players.map((player, index) => {
+          const rank = calculateRank(index, players)
+          return (
+            <div key={player._id} className={s.playerItem}>
+              <span className={s.rank}>{rank}{getRankSuffix(rank)}</span>
+              <span className={s.player}>{player.emoji} {player.handle}</span>
+              <span className={s.score}>{player.score}</span>
+            </div>
+          )
+        })}
       </div>
     </main>
   )
-} 
+}
