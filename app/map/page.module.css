@@ -24,6 +24,34 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
+/* Floating dropdown container */
+.dropdown {
+  position: fixed;
+  top: 112px;
+  right: 12px;
+  z-index: 10;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 768px) {
+  .select {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+}
+
 /* Mapbox controls styling */
 .mapboxgl-ctrl-top-right {
   top: 80px;
