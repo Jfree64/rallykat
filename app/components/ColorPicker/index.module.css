@@ -1,11 +1,16 @@
+.colorPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .combo {
   position: relative;
 }
 
 .comboList {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
+  position: fixed;
+  width: 240px;
   min-width: 220px;
   max-height: 200px;
   overflow: auto;

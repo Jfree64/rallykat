@@ -43,7 +43,7 @@ export default function ColorPicker({ label, value, onChange, inputClassName, pl
   }, [])
 
   return (
-    <div>
+    <div className={s.colorPicker}>
       <label>{label}</label>
       <div className={s.combo} ref={boxRef}>
         <input

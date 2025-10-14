@@ -425,18 +425,18 @@ export default function Map() {
             <label htmlFor="gpxUpload" className={s.button}>Upload GPX</label>
           </div>
           <ColorPicker
-            label="Start color"
+            label="Color 1"
             value={startColor}
             onChange={setStartColor}
             inputClassName={s.select}
             placeholder="Start color (#RRGGBB or name)"
           />
           <ColorPicker
-            label="Midpoint color"
+            label="Color 2"
             value={endColor}
             onChange={setEndColor}
             inputClassName={s.select}
-            placeholder="Midpoint color (#RRGGBB or name)"
+            placeholder="End color (#RRGGBB or name)"
           />
         </div>
       </div>
