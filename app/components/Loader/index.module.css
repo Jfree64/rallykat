@@ -1,0 +1,35 @@
+/* Loader overlay */
+.loaderOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at top, rgba(10, 10, 10, 0.65), rgba(10, 10, 10, 0.85));
+  z-index: 5;
+  transition: opacity 300ms ease;
+  height: 100vh;
+}
+
+.loaderOverlay:global(.hidden) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.globe {
+  width: 72px;
+  height: 72px;
+  animation: spin 2.2s linear infinite;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4));
+  border-radius: 50%;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

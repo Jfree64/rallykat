@@ -1,4 +1,4 @@
-.map-container {
+.mapContainer {
   position: fixed;
   top: 0;
   left: 0;
@@ -8,8 +8,18 @@
 }
 
 .map {
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  overflow: hidden;
+}
+
+.mapReady {
+  opacity: 1;
 }
 
 .error {
@@ -24,33 +34,167 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Floating dropdown container */
-.dropdown {
+/* Floating control panel container */
+.controlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   position: fixed;
-  top: 112px;
-  right: 12px;
+  top: 110px;
+  right: 1rem;
   z-index: 10;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 40px;
+  padding: 24px 24px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  min-width: 300px;
+  height: 360px;
+  transition: height 0.3s ease;
+}
+
+.controlPanel.collapsed {
+  height: 74px;
+}
+
+.controlPanel.collapsed .cpContent {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cpContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  opacity: 1;
+  transition: opacity 1s ease;
+  overflow: hidden;
+}
+
+.cpHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.version {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cpSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background: rgba(255, 255, 255, 0.95);
-  color: #111;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 0.5em 3.5em 0.5em 1em;
+  display: inline-block;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background-image:
+    linear-gradient(45deg, transparent 50%, gray 50%),
+    linear-gradient(135deg, gray 50%, transparent 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position:
+    calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px),
+    calc(100% - 2.5em) 0.5em;
+  background-size:
+    5px 5px,
+    5px 5px,
+    1px 1.5em;
+  background-repeat: no-repeat;
+}
+
+.select:focus {
+  background-image:
+    linear-gradient(45deg, green 50%, transparent 50%),
+    linear-gradient(135deg, transparent 50%, green 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position:
+    calc(100% - 15px) 1em,
+    calc(100% - 20px) 1em,
+    calc(100% - 2.5em) 0.5em;
+  background-size:
+    5px 5px,
+    5px 5px,
+    1px 1.5em;
+  background-repeat: no-repeat;
+  border-color: green;
+  outline: 0;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileInput {
+  /* hide native input, use label as button */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5em 0.9em;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.input {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 0.5em 0.75em;
   font-size: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-@media (min-width: 768px) {
-  .select {
-    font-size: 16px;
-    padding: 10px 14px;
-  }
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
+
+/* moved combo styles into ColorCombo module */
 
 /* Mapbox controls styling */
 .mapboxgl-ctrl-top-right {
