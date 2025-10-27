@@ -40,12 +40,12 @@ export default function Leaderboard() {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const query = `*[_type == "player"] | order(score desc) {
+        const query = `*[_type == "player"] | order(efScore desc) {
           _id,
           name,
           emoji,
           handle,
-          score
+          efScore
         }`
         const result = await client.fetch(query)
         setPlayers(result)

@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import s from './index.module.css'
 
 const Loader = ({ className, startColor, endColor }: { className?: string, startColor: string, endColor: string }) => {

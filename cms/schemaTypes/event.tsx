@@ -36,6 +36,23 @@ export default {
       of: [{ type: "heat" }],
     }
   ],
+  initialValue: () => {
+    const heatsPerLevel = [12, 6, 3, 1]
+    const heats: any[] = []
+    heatsPerLevel.forEach((count, index) => {
+      const level = index + 1
+      for (let round = 1; round <= count; round++) {
+        heats.push({
+          _type: "heat",
+          level,
+          round,
+          players: [],
+          redemption: false,
+        })
+      }
+    })
+    return { heats }
+  },
   orderings: [
     {
       title: "Date",
