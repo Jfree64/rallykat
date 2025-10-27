@@ -1,0 +1,9 @@
+.eventPage {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 80ch;
+  margin: 0 auto;
+  padding: 1rem;
+  max-width: 1800px;
+}

@@ -1,0 +1,141 @@
+.bracket {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding: 8px 0;
+  position: relative;
+}
+
+.roundColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.roundHeader {
+  font-weight: 700;
+  font-size: 14px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 6px;
+}
+
+.roundMatches {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.match {
+  background: #0f1115;
+  border: 1px solid #1e2230;
+  border-radius: 10px;
+  padding: 8px;
+  min-width: 220px;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.level {
+  font-size: 11px;
+  background: #151a24;
+  color: #b5c2ff;
+  border: 1px solid #232a3a;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.redemption {
+  font-size: 11px;
+  background: #221419;
+  color: #ff94b8;
+  border: 1px solid #3b1e2a;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid #1a1f2b;
+  background: #0c0f14;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.playerEmoji {
+  font-size: 16px;
+}
+
+.playerHandle {
+  flex: 1;
+  color: #e6e8f0;
+}
+
+.tbd {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.winner {
+  border-color: #2f855a;
+  background: #0e1613;
+  box-shadow: 0 0 0 1px rgba(47, 133, 90, 0.35) inset;
+}
+
+.winMark {
+  color: #68d391;
+  font-weight: 700;
+}
+
+.rankMark {
+  font-size: 14px;
+}
+
+.gold {
+  border-color: #c5a100;
+  background: linear-gradient(180deg, #1b1607, #2a230a);
+  box-shadow: 0 0 0 1px rgba(197, 161, 0, 0.35) inset;
+}
+
+.silver {
+  border-color: #9aa3ad;
+  background: linear-gradient(180deg, #0f1316, #151a1f);
+  box-shadow: 0 0 0 1px rgba(154, 163, 173, 0.35) inset;
+}
+
+.bronze {
+  border-color: #b27337;
+  background: linear-gradient(180deg, #140d07, #1e140d);
+  box-shadow: 0 0 0 1px rgba(178, 115, 55, 0.35) inset;
+}
+
+.loading,
+.error,
+.empty {
+  padding: 8px 0;
+  color: #a0aec0;
+}
+
+.connectorLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.connector {
+  stroke: #2a3347;
+  stroke-width: 2;
+  fill: none;
+}

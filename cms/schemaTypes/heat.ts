@@ -1,7 +1,7 @@
 export default {
   name: "heat",
   title: "Heat",
-  type: "document",
+  type: "object",
   fields: [
     {
       name: "level",
@@ -18,18 +18,29 @@ export default {
       title: "Players",
       type: "array",
       of: [{ type: "reference", to: [{ type: "player" }] }],
+      initialValue: () => [
+        { _type: "reference", to: [{ type: "player" }] },
+        { _type: "reference", to: [{ type: "player" }] }],
     },
     {
       name: "winner",
       title: "Winner",
       type: "reference",
       to: [{ type: "player" }],
-      validation: (Rule: any) => Rule.custom((winner: { _ref: string } | null, context: { document: { players: { _ref: string }[] } }) => {
-        const players = context.document.players
+      validation: (Rule: any) => Rule.custom((winner: { _ref: string } | null, context: { parent: { players: { _ref: string }[] } }) => {
+        const players = context.parent?.players
         if (!winner) return true // Allow no winner (TBD)
         if (!players) return true // Allow if no players yet
         return players.some((player: { _ref: string }) => player._ref === winner._ref) || 'Winner must be one of the players in the heat'
-      })
+      }),
+    },
+    {
+      name: 'second',
+      title: 'Second Player',
+      type: 'reference',
+      to: [{ type: "player" }],
+      description: 'Second place in a 3-player heat (if applicable)',
+      hidden: (context: any) => (context.parent?.players?.length ?? 0) < 3
     },
     {
       name: "redemption",
