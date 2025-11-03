@@ -21,7 +21,7 @@ const EventPage = async ({ params }: { params: Promise<{ event: string }> }) => 
           <h1>{eventData.name}</h1>
           <p>{formatDate(eventData.date)}</p>
         </div>
-        <Map miniMap={true} />
+        <Map miniMap={true} defaultGpxUrl={eventData.mapUrl || undefined} />
       </div>
       <Bracket heats={eventData.heats} />
     </div>

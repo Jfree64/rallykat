@@ -49,6 +49,18 @@ export interface SanityHeat {
 
 export interface SanityEventWithHeats extends SanityEvent {
   heats: SanityHeat[]
+  mapUrl?: string
+  mapName?: string
+}
+
+export interface SanityEventMapItem {
+  id: string
+  eventName: string
+  seriesName: string | null
+  date: string
+  mapName: string | null
+  url: string
+  slug?: string | null
 }
 
 export async function getEvents(): Promise<SanityEvent[]> {
@@ -58,6 +70,7 @@ export async function getEvents(): Promise<SanityEvent[]> {
     date,
     emoji,
     slug,
+    "mapUrl": map.asset->url,
     "series": *[_type == "series" && references(^._id)][0] {
       _id,
       name,
@@ -75,6 +88,7 @@ export async function getEventBySlugWithHeats(slug: string): Promise<SanityEvent
     date,
     emoji,
     slug,
+    "mapUrl": map.asset->url,
     "series": *[_type == "series" && references(^._id)][0]{
       _id,
       name,
@@ -90,4 +104,17 @@ export async function getEventBySlugWithHeats(slug: string): Promise<SanityEvent
   }`
 
   return await client.fetch(query, { slug })
+}
+
+export async function getEventMapItems(): Promise<SanityEventMapItem[]> {
+  const query = `*[_type == "event" && defined(map) && defined(map.asset)]{
+    _id,
+    "eventName": name,
+    date,
+    "seriesName": *[_type == "series" && references(^._id)][0].name,
+    "url": map.asset->url,
+    "slug": slug.current
+  } | order(seriesName asc, date asc)`
+
+  return await client.fetch(query)
 }

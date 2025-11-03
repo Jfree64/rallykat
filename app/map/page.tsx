@@ -29,13 +29,7 @@ function getBoundingBoxCenter(points: TrackPoint[]): [number, number] {
   return [centerLon, centerLat]
 }
 
-export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, defaultGpx: File }) {
-  const defaultGpxText = useMemo(() => {
-    if (defaultGpx) {
-      return new FileReader().readAsText(defaultGpx)
-    }
-    return null
-  }, [defaultGpx])
+export default function Map({ miniMap, defaultGpxUrl }: { miniMap: boolean, defaultGpxUrl?: string }) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const rotationRef = useRef<number>(0)
@@ -44,12 +38,13 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
   const [styleLoaded, setStyleLoaded] = useState(false)
   const [loadingError, setLoadingError] = useState<string | null>(null)
   type GpxItem = {
-    fileName: string // with extension
-    baseName: string // without extension
+    id: string
+    baseName: string // identifier (slug or id)
     seriesName: string
     raceNumber: number | null
     courseName: string
     label: string // display label; courseName only
+    url: string
   }
 
   const [files, setFiles] = useState<GpxItem[]>([])
@@ -61,6 +56,31 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
   const [showControlPanel, setShowControlPanel] = useState<boolean>(true)
   // combobox state moved into ColorCombo component
   const [uploadedTracks, setUploadedTracks] = useState<Record<string, TrackPoint[]>>({})
+  // MiniMap: Load provided GPX URL directly and skip dropdown/selection logic
+  useEffect(() => {
+    if (!miniMap) return
+    if (!defaultGpxUrl) return
+    setIsMapReady(false)
+    fetch(defaultGpxUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load GPX file: ${response.status}`)
+        }
+        return response.text()
+      })
+      .then((gpxContent) => {
+        const points = parseGPX(gpxContent)
+        setTrackPoints(points)
+        if (points.length > 0) {
+          setGpxCenter(getBoundingBoxCenter(points))
+        }
+        setLoadingError(null)
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error)
+        setLoadingError(message)
+      })
+  }, [miniMap, defaultGpxUrl])
 
   const buildGradientExpression = () => ([
     'interpolate',
@@ -71,7 +91,7 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
     1, startColor,
   ])
 
-  // Helpers to parse GPX filenames
+  // Helpers
   const toBaseName = (name: string) => name.replace(/\.gpx$/i, '')
   const capitalizeWords = (input: string) => input
     .replace(/[-_]+/g, ' ')
@@ -79,25 +99,6 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
     .trim()
     .replace(/\b\w/g, (c) => c.toUpperCase())
 
-  const parseItem = (fileName: string): GpxItem => {
-    const baseName = toBaseName(fileName)
-    // Expected pattern: series-raceNumber-courseName
-    const dashed = baseName.match(/^([^-]+)-(\d+)-(.+)$/)
-    if (dashed) {
-      const seriesName = capitalizeWords(dashed[1])
-      const raceNumber = parseInt(dashed[2], 10)
-      const courseName = capitalizeWords(dashed[3])
-      const label = courseName
-      return { fileName, baseName, seriesName, raceNumber, courseName, label }
-    }
-
-    // Last resort: unparsed name
-    const seriesName = 'Other'
-    const raceNumber = null
-    const courseName = capitalizeWords(baseName)
-    const label = courseName
-    return { fileName, baseName, seriesName, raceNumber, courseName, label }
-  }
 
   const handleUploadGpx = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -124,12 +125,13 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
 
       // Inject synthetic item into dropdown under "Uploads"
       const uploadedItem: GpxItem = {
-        fileName: file.name,
+        id: uniqueBase,
         baseName: uniqueBase,
         seriesName: 'Uploads',
         raceNumber: null,
         courseName: capitalizeWords(originalBase),
-        label: capitalizeWords(originalBase)
+        label: capitalizeWords(originalBase),
+        url: ''
       }
       setFiles(prev => [...prev, uploadedItem])
 
@@ -146,13 +148,27 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
   }
 
   useEffect(() => {
-    // Load list of GPX files
+    // Load list of GPX files from Sanity (via API)
     if (!miniMap) {
       fetch('/api/gpx-files')
         .then((res) => res.json())
         .then((data) => {
-          if (Array.isArray(data.files)) {
-            const items: GpxItem[] = data.files.map((name: string) => parseItem(name))
+          if (Array.isArray(data.items)) {
+            const items: GpxItem[] = data.items.map((it: any) => {
+              const baseName: string = (it.slug || it.id) as string
+              const seriesName: string = it.seriesName ? capitalizeWords(it.seriesName as string) : 'Other'
+              const courseName: string = capitalizeWords((it.mapName || it.eventName || baseName) as string)
+              const label: string = courseName
+              return {
+                id: it.id as string,
+                baseName,
+                seriesName,
+                raceNumber: null,
+                courseName,
+                label,
+                url: it.url as string
+              }
+            })
 
             // Determine default selection: first series, lowest race number
             const grouped = items.reduce<Record<string, GpxItem[]>>((acc, it) => {
@@ -176,7 +192,7 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
             setFiles(items)
             setSelectedBaseName(first?.baseName || items[0]?.baseName || '')
           } else {
-            throw new Error('Invalid files response')
+            throw new Error('Invalid items response')
           }
         })
         .catch((error: unknown) => {
@@ -198,8 +214,14 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
       return
     }
 
-    // Otherwise, load from public folder
-    fetch(`/gpx/${selectedBaseName}.gpx`)
+    // Otherwise, load from Sanity file URL (non-minimap only)
+    if (miniMap) return
+    const selectedItem = files.find(f => f.baseName === selectedBaseName)
+    if (!selectedItem) {
+      setLoadingError('Selected GPX item not found')
+      return
+    }
+    fetch(selectedItem.url)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Failed to load GPX file: ${response.status}`)
@@ -217,7 +239,7 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
         console.error('Error loading GPX file:', error)
         setLoadingError(error.message)
       })
-  }, [selectedBaseName, uploadedTracks])
+  }, [miniMap, selectedBaseName, uploadedTracks, files])
 
   useEffect(() => {
     if (!mapContainer.current || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return
@@ -352,8 +374,9 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
     }
   }, [trackPoints, styleLoaded])
 
-  // Update gradient live when colors change
+  // Update gradient live when colors change (skip for minimap for perf)
   useEffect(() => {
+    if (miniMap) return
     if (!map.current) return
     const layerExists = !!map.current.getLayer('track')
     if (!layerExists) return
@@ -362,7 +385,7 @@ export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, default
     } catch (e) {
       // no-op if layer not yet ready
     }
-  }, [startColor, endColor])
+  }, [miniMap, startColor, endColor])
 
   // outside-click handling lives in ColorCombo
 

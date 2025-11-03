@@ -22,9 +22,11 @@ export default {
     },
     {
       name: "map",
-      title: "Map",
-      type: "reference",
-      to: [{ type: "map" }],
+      title: "GPX Map File",
+      type: "file",
+      options: {
+        accept: ".gpx",
+      },
     },
     {
       name: "slug",
