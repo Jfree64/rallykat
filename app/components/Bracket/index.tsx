@@ -22,7 +22,8 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
   const containerRef = useRef<HTMLDivElement | null>(null)
   const nodeMapRef = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const [svgSize, setSvgSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
-  const [paths, setPaths] = useState<string[]>([])
+  const [connectors, setConnectors] = useState<Array<{ d: string; fromLevel: number; fromIndex: number; toLevel: number; toIndex: number }>>([])
+  const [selectedPerson, setSelectedPerson] = useState<{ playerId: string; level: number } | null>(null)
 
   const allHeats: SanityHeat[] = useMemo(() => {
     if (heats) return heats
@@ -46,6 +47,23 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
     return groupedByLevel[groupedByLevel.length - 1].level
   }, [groupedByLevel])
 
+  const selectedFinalRank = useMemo<1 | 2 | 3 | undefined>(() => {
+    if (!selectedPerson || finalLevel == null) return undefined
+    const finalGroup = groupedByLevel.find(g => g.level === finalLevel)
+    if (!finalGroup) return undefined
+    const finalHeat = finalGroup.heats.find(h => (h.players || []).some(p => p && p._id === selectedPerson.playerId))
+    if (!finalHeat) return undefined
+    const players = finalHeat.players || []
+    const winnerId = finalHeat.winner?._id
+    const presentIndexes = players.map((p, i) => ({ p, i })).filter(({ p }) => !!p).map(({ i }) => i)
+    const winnerIndex = presentIndexes.find(i => players[i]?._id === winnerId)
+    if (winnerIndex !== undefined && players[winnerIndex]?._id === selectedPerson.playerId) return 1
+    const others = presentIndexes.filter(i => i !== winnerIndex)
+    if (others[0] !== undefined && players[others[0]]?._id === selectedPerson.playerId) return 2
+    if (others[1] !== undefined && players[others[1]]?._id === selectedPerson.playerId) return 3
+    return undefined
+  }, [selectedPerson, groupedByLevel, finalLevel])
+
   useLayoutEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -66,7 +84,7 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
       return { x, y }
     }
 
-    const newPaths: string[] = []
+    const newConnectors: Array<{ d: string; fromLevel: number; fromIndex: number; toLevel: number; toIndex: number }> = []
     setSvgSize({ width: container.scrollWidth, height: container.scrollHeight })
 
     for (let col = 0; col < groupedByLevel.length - 1; col++) {
@@ -83,22 +101,22 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
         const bEl = nodeMapRef.current.get(`${prev.level}-${bIdx}`) as HTMLElement | null
 
         const end = getCenterLeft(nextEl)
-        const addPath = (startEl: HTMLElement) => {
+        const addPath = (startEl: HTMLElement, fromIndex: number) => {
           const start = getCenterRight(startEl)
           const midX = (start.x + end.x) / 2
           const d = `M ${start.x} ${start.y} C ${midX} ${start.y}, ${midX} ${end.y}, ${end.x} ${end.y}`
-          newPaths.push(d)
+          newConnectors.push({ d, fromLevel: prev.level, fromIndex, toLevel: next.level, toIndex: n })
         }
-        if (aEl) addPath(aEl)
-        if (bEl) addPath(bEl)
+        if (aEl) addPath(aEl, aIdx)
+        if (bEl) addPath(bEl, bIdx)
       }
     }
 
-    setPaths(newPaths)
+    setConnectors(newConnectors)
 
     const onResize = () => {
       setSvgSize({ width: container.scrollWidth, height: container.scrollHeight })
-      requestAnimationFrame(() => setPaths(prev => [...prev]))
+      requestAnimationFrame(() => setConnectors(prev => [...prev]))
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
@@ -108,8 +126,34 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
   if (error) return <div className={s.error}>{error}</div>
   if (!groupedByLevel.length) return <div className={s.empty}>No bracket data</div>
 
+  const highlightKindByKey = useMemo(() => {
+    const map = new Map<string, 'green' | 'red' | 'gold' | 'silver' | 'bronze'>()
+    if (!selectedPerson) return map
+
+    groupedByLevel.forEach(({ level, heats }, gi) => {
+      heats.forEach((heat, index) => {
+        const key = `${level}-${index}`
+        const hasPlayer = (heat.players || []).some(p => p && p._id === selectedPerson.playerId)
+        if (!hasPlayer) return
+        if (finalLevel != null && level === finalLevel) {
+          if (selectedFinalRank === 1) map.set(key, 'gold')
+          else if (selectedFinalRank === 2) map.set(key, 'silver')
+          else if (selectedFinalRank === 3) map.set(key, 'bronze')
+          else map.set(key, 'green')
+          return
+        }
+        // Check if player appears in any heat in the next level
+        const nextGroup = groupedByLevel[gi + 1]
+        const advances = !!nextGroup && nextGroup.heats.some(h => (h.players || []).some(p => p && p._id === selectedPerson.playerId))
+        map.set(key, advances ? 'green' : 'red')
+      })
+    })
+
+    return map
+  }, [selectedPerson, groupedByLevel, finalLevel, selectedFinalRank])
+
   return (
-    <div className={s.bracket} ref={containerRef}>
+    <div className={s.bracket} ref={containerRef} onClick={() => setSelectedPerson(null)}>
       {groupedByLevel.map(({ level, heats }) => (
         <div key={level} className={s.roundColumn}>
           {showHeaders && <div className={s.roundHeader}>{finalLevel === level ? 'Final' : `Round ${level}`}</div>}
@@ -120,6 +164,9 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
                 heat={heat}
                 refCb={(el: HTMLDivElement | null) => nodeMapRef.current.set(`${level}-${index}`, el)}
                 isFinalRound={finalLevel === level}
+                highlightKind={highlightKindByKey.get(`${level}-${index}`)}
+                selectedPlayerId={selectedPerson?.playerId}
+                onClickPlayer={(playerId: string) => setSelectedPerson({ playerId, level })}
               />
             ))}
           </div>
@@ -131,15 +178,43 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
         height={svgSize.height}
         viewBox={`0 0 ${svgSize.width} ${svgSize.height}`}
       >
-        {paths.map((d, i) => (
-          <path key={i} d={d} className={s.connector} />
-        ))}
+        {connectors.map((conn, i) => {
+          let cls = s.connector
+          if (selectedPerson) {
+            // determine if the selected person appears in both from and to heats
+            const fromHeats = groupedByLevel.find(g => g.level === conn.fromLevel)?.heats || []
+            const toHeats = groupedByLevel.find(g => g.level === conn.toLevel)?.heats || []
+            const fromHeat = fromHeats[conn.fromIndex]
+            const toHeat = toHeats[conn.toIndex]
+            const inFrom = (fromHeat?.players || []).some(p => p && p._id === selectedPerson.playerId)
+            const inTo = (toHeat?.players || []).some(p => p && p._id === selectedPerson.playerId)
+            if (inFrom && inTo) {
+              // If connector goes into final, color by final rank; otherwise green
+              if (finalLevel != null && conn.toLevel === finalLevel) {
+                if (selectedFinalRank === 1) cls = `${s.connector} ${s.connectorGold}`
+                else if (selectedFinalRank === 2) cls = `${s.connector} ${s.connectorSilver}`
+                else if (selectedFinalRank === 3) cls = `${s.connector} ${s.connectorBronze}`
+                else cls = `${s.connector} ${s.connectorGreen}`
+              } else {
+                cls = `${s.connector} ${s.connectorGreen}`
+              }
+            }
+          }
+          return <path key={i} d={conn.d} className={cls} />
+        })}
       </svg>
     </div>
   )
 }
 
-function MatchCard({ heat, refCb, isFinalRound }: { heat: SanityHeat, refCb?: (el: HTMLDivElement | null) => void, isFinalRound?: boolean }) {
+function MatchCard({ heat, refCb, isFinalRound, highlightKind, selectedPlayerId, onClickPlayer }: {
+  heat: SanityHeat,
+  refCb?: (el: HTMLDivElement | null) => void,
+  isFinalRound?: boolean,
+  highlightKind?: 'green' | 'red' | 'gold' | 'silver' | 'bronze',
+  selectedPlayerId?: string,
+  onClickPlayer?: (playerId: string) => void,
+}) {
   const players = heat.players ?? []
   const winnerId = heat.winner?._id
   const minRows = 2
@@ -167,30 +242,52 @@ function MatchCard({ heat, refCb, isFinalRound }: { heat: SanityHeat, refCb?: (e
     }
   }
 
+  const isDimmed = !!selectedPlayerId && !highlightKind
+  const matchClasses = [
+    s.match,
+    highlightKind === 'green' ? s.hiGreen : '',
+    highlightKind === 'red' ? s.hiRed : '',
+    highlightKind === 'gold' ? s.goldCard : '',
+    highlightKind === 'silver' ? s.silverCard : '',
+    highlightKind === 'bronze' ? s.bronzeCard : '',
+    isDimmed ? s.dimmed : '',
+  ].join(' ').trim()
+
   return (
-    <div className={s.match} ref={refCb}>
+    <div className={matchClasses} ref={refCb} onClick={(e) => e.stopPropagation()}>
       <div className={s.metaRow}>
-        <span className={s.level}>H{heat.round}</span>
         {heat.redemption && <span className={s.redemption}>Redemption</span>}
       </div>
       {Array.from({ length: totalRows }).map((_, i) => {
         const player = players[i]
         const isWinner = !!player && winnerId === player._id
         const finalRank = isFinalRound ? ranksByIndex[i] : undefined
+        const isSelected = !!player && !!selectedPlayerId && player._id === selectedPlayerId
         return (
-          <PlayerRow key={i} player={player} isWinner={isWinner} isTbd={!player} isFinalRound={!!isFinalRound} finalRank={finalRank} />
+          <PlayerRow
+            key={i}
+            player={player}
+            isWinner={isWinner}
+            isTbd={!player}
+            isFinalRound={!!isFinalRound}
+            finalRank={finalRank}
+            linkHighlight={isSelected}
+            onClickPlayer={onClickPlayer}
+          />
         )
       })}
     </div>
   )
 }
 
-function PlayerRow({ player, isWinner, isTbd, isFinalRound, finalRank }: {
+function PlayerRow({ player, isWinner, isTbd, isFinalRound, finalRank, linkHighlight, onClickPlayer }: {
   player?: SanityHeat['players'][number];
   isWinner: boolean;
   isTbd: boolean;
   isFinalRound?: boolean;
   finalRank?: 1 | 2 | 3;
+  linkHighlight?: boolean;
+  onClickPlayer?: (playerId: string) => void;
 }) {
   if (!player) {
     return (
@@ -207,9 +304,9 @@ function PlayerRow({ player, isWinner, isTbd, isFinalRound, finalRank }: {
   ) : (isWinner ? '✓' : undefined)
 
   return (
-    <div className={`${s.playerRow} ${isWinner ? s.winner : ''} ${rankClass}`}>
+    <div className={`${s.playerRow} ${isWinner ? s.winner : ''} ${rankClass} ${linkHighlight ? s.linkHighlight : ''}`} onClick={(e) => { e.stopPropagation(); onClickPlayer && onClickPlayer(player._id) }}>
       <span className={s.playerEmoji}>{player.emoji}</span>
-      <span className={s.playerHandle}>{player.handle || player.name}</span>
+      <span className={s.playerHandle}>{player.nickname || player.handle}</span>
       {symbol && <span className={isFinalRound ? s.rankMark : s.winMark}>{symbol}</span>}
     </div>
   )

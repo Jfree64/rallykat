@@ -27,7 +27,15 @@ export interface SanityPlayerRef {
   _id: string
   name: string
   emoji: string
-  handle: string
+  handle: string,
+  nickname: string
+  email: string
+  instagram: string
+  efScore: number
+  score: number
+  slug: {
+    current: string
+  }
 }
 
 export interface SanityHeat {
@@ -76,8 +84,8 @@ export async function getEventBySlugWithHeats(slug: string): Promise<SanityEvent
       level,
       round,
       redemption,
-      players[]->{ _id, name, emoji, handle },
-      winner->{ _id, name, emoji, handle }
+      players[]->{ _id, name, emoji, handle, nickname, score, efScore },
+      winner->{ _id, name, emoji, handle, score, efScore }
     }
   }`
 

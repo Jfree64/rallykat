@@ -165,7 +165,7 @@ export default function Home() {
                   const displayName = `${event.emoji} ${maskedName}`
 
                   return (
-                    <a href={`/event/${event.slug.current}`} key={event._id} className={s.raceItem}>
+                    <a href={`/events/${event.slug.current}`} key={event._id} className={s.raceItem}>
                       <div>{displayName}</div>
                       <div>{formatDate(eventDate)}</div>
                       <div>{timeLefts[event.name] || '00:00:00:00'}</div>

@@ -1,7 +1,7 @@
 .navbar {
   background-color: rgba(0, 0, 0, 0.1);
   margin: 1rem;
-  padding: 1.25rem 2.5rem;
+  padding: .5rem 2.5rem .5rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22,7 +22,29 @@
 
 .navLeft {
   flex: 1;
-  font-family: 'Nintendoid1', sans-serif;
+  font-family: 'Source Code Pro', monospace;
+  font-weight: 900;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+}
+
+.logotype {
+  font-weight: 900;
+  font-style: italic;
+  color: white;
+  font-size: 1.5rem;
+  letter-spacing: 0.069em;
+  text-rendering: optimizeLegibility;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  font-kerning: normal;
 }
 
 .navCenter {
@@ -37,15 +59,8 @@
   justify-content: flex-end;
 }
 
-.navLogo {
-  color: white;
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
 
-.navLogo:hover {
+.logotype:hover {
   opacity: 0.8;
 }
 
@@ -63,7 +78,7 @@
   transform: translateY(-1px);
 }
 
-.navbar a {
+.navLink {
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-size: 0.95rem;
@@ -73,11 +88,11 @@
   transition: color 0.2s ease;
 }
 
-.navbar a:hover {
+.navLink:hover {
   color: white;
 }
 
-.navbar a::after {
+.navLink::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -89,7 +104,7 @@
   transition: transform 0.2s ease;
 }
 
-.navbar a:hover::after {
+.navLink:hover::after {
   transform: scaleX(1);
 }
 

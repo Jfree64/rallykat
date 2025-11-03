@@ -139,3 +139,58 @@
   stroke-width: 2;
   fill: none;
 }
+
+.connectorGreen {
+  stroke: #6ee7b7;
+  stroke-width: 3;
+}
+
+.connectorGold {
+  stroke: #c5a100;
+  stroke-width: 3;
+}
+
+.connectorSilver {
+  stroke: #9aa3ad;
+  stroke-width: 3;
+}
+
+.connectorBronze {
+  stroke: #b27337;
+  stroke-width: 3;
+}
+
+/* Highlight states for click-navigation */
+.hiGreen {
+  border-color: #6ee7b7;
+  box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.45) inset;
+}
+
+.hiRed {
+  border-color: #f87171;
+  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.45) inset;
+}
+
+.goldCard {
+  border-color: #c5a100;
+  box-shadow: 0 0 0 1px rgba(197, 161, 0, 0.45) inset;
+}
+
+.silverCard {
+  border-color: #9aa3ad;
+  box-shadow: 0 0 0 1px rgba(154, 163, 173, 0.45) inset;
+}
+
+.bronzeCard {
+  border-color: #b27337;
+  box-shadow: 0 0 0 1px rgba(178, 115, 55, 0.45) inset;
+}
+
+.linkHighlight {
+  outline: 1px dashed red;
+}
+
+.dimmed {
+  opacity: 0.4;
+  filter: saturate(0.6);
+}

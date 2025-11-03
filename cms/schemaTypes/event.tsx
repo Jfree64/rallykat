@@ -21,6 +21,12 @@ export default {
       type: "string",
     },
     {
+      name: "map",
+      title: "Map",
+      type: "reference",
+      to: [{ type: "map" }],
+    },
+    {
       name: "slug",
       title: "Slug",
       type: "slug",

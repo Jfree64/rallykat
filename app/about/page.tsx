@@ -21,8 +21,8 @@ export default function About() {
         <br />
         <p>Local events:</p>
         <p><a href="https://www.instagram.com/rallykat.nyc/">New York</a> - hosted by <a href="https://www.instagram.com/worstknowntime/">Jono Freeman</a></p>
-        <p><a href="https://www.instagram.com/rallykatworldwide/">Los Angeles</a> - hosted by <a href="https://www.instagram.com/nameyourfavoritebread/">Colin Valee</a> (Coming Soon)</p>
-        <p><a href="https://www.instagram.com/russell_abernethy_/">Philadelphia</a> - hosted by <a href="https://www.instagram.com/russell_abernethy_/">Russell Abernethy</a> (Coming Soon)</p>
+        <p><a href="https://www.instagram.com/rallykatworldwide/">Los Angeles</a> - hosted by <a href="https://www.instagram.com/nameyourfavoritebread/">Colin Valee</a></p>
+        <p><a href="https://www.instagram.com/russell_abernethy_/">Philadelphia</a> - hosted by <a href="https://www.instagram.com/russell_abernethy_/">Russell Abernethy</a></p>
         <br />
       </div>
     </div>
