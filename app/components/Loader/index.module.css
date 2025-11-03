@@ -1,14 +1,16 @@
 /* Loader overlay */
 .loaderOverlay {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: radial-gradient(ellipse at top, rgba(10, 10, 10, 0.65), rgba(10, 10, 10, 0.85));
   z-index: 5;
   transition: opacity 300ms ease;
-  height: 100vh;
+  height: 100%;
 }
 
 .loaderOverlay:global(.hidden) {

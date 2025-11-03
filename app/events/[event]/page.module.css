@@ -7,3 +7,15 @@
   padding: 1rem;
   max-width: 1800px;
 }
+
+.info {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.infoHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

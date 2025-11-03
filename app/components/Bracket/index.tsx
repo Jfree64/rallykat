@@ -156,7 +156,7 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
     <div className={s.bracket} ref={containerRef} onClick={() => setSelectedPerson(null)}>
       {groupedByLevel.map(({ level, heats }) => (
         <div key={level} className={s.roundColumn}>
-          {showHeaders && <div className={s.roundHeader}>{finalLevel === level ? 'Final' : `Round ${level}`}</div>}
+          {showHeaders && <div className={s.roundHeader}>{finalLevel === level ? 'Final (4 laps)' : `Round ${level}  (${level + 1} laps)`}</div>}
           <div className={s.roundMatches}>
             {heats.map((heat, index) => (
               <MatchCard
@@ -301,7 +301,7 @@ function PlayerRow({ player, isWinner, isTbd, isFinalRound, finalRank, linkHighl
 
   const symbol = isFinalRound ? (
     finalRank === 1 ? '👑' : finalRank === 2 ? '🥈' : finalRank === 3 ? '🥉' : undefined
-  ) : (isWinner ? '✓' : undefined)
+  ) : (isWinner ? '' : undefined)
 
   return (
     <div className={`${s.playerRow} ${isWinner ? s.winner : ''} ${rankClass} ${linkHighlight ? s.linkHighlight : ''}`} onClick={(e) => { e.stopPropagation(); onClickPlayer && onClickPlayer(player._id) }}>

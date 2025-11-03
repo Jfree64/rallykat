@@ -26,4 +26,16 @@ export default {
       },
     },
   ],
+  preview: {
+    select: {
+      name: "name",
+      file: "file.asset.url",
+    },
+    prepare(selection: any) {
+      const { name, file } = selection
+      return {
+        title: name,
+      }
+    },
+  },
 };

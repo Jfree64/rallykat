@@ -3,7 +3,8 @@ import { getEventBySlugWithHeats } from "../../lib/sanity"
 import { SanityEventWithHeats } from "../../lib/sanity"
 
 import s from './page.module.css'
-import MiniMap from '../../components/MiniMap'
+import Map from '../../map/page'
+import { formatDate } from "../../../cms/utils/formatDate"
 
 const EventPage = async ({ params }: { params: Promise<{ event: string }> }) => {
   const { event: eventSlug } = await params
@@ -15,9 +16,14 @@ const EventPage = async ({ params }: { params: Promise<{ event: string }> }) => 
   }
   return (
     <div className={s.eventPage}>
-      <h1>{eventData.name}</h1>
+      <div className={s.info}>
+        <div className={s.infoHeader}>
+          <h1>{eventData.name}</h1>
+          <p>{formatDate(eventData.date)}</p>
+        </div>
+        <Map miniMap={true} />
+      </div>
       <Bracket heats={eventData.heats} />
-      {/* <MiniMap /> */}
     </div>
   );
 };

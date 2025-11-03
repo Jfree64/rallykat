@@ -1,22 +1,43 @@
 .mapContainer {
+  z-index: 0;
+  position: relative;
+}
+
+.map {
+  opacity: 0;
+  transition: opacity 400ms ease;
+  overflow: hidden;
+}
+
+.full {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
 }
 
-.map {
+.full .map {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100dvh;
-  opacity: 0;
-  transition: opacity 400ms ease;
-  overflow: hidden;
 }
+
+.miniMap {
+  position: relative;
+  width: 400px;
+  height: 200px;
+}
+
+.miniMap .map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
 
 .mapReady {
   opacity: 1;

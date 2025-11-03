@@ -29,7 +29,13 @@ function getBoundingBoxCenter(points: TrackPoint[]): [number, number] {
   return [centerLon, centerLat]
 }
 
-export default function Map() {
+export default function Map({ miniMap, defaultGpx }: { miniMap: boolean, defaultGpx: File }) {
+  const defaultGpxText = useMemo(() => {
+    if (defaultGpx) {
+      return new FileReader().readAsText(defaultGpx)
+    }
+    return null
+  }, [defaultGpx])
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const rotationRef = useRef<number>(0)
@@ -141,42 +147,44 @@ export default function Map() {
 
   useEffect(() => {
     // Load list of GPX files
-    fetch('/api/gpx-files')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.files)) {
-          const items: GpxItem[] = data.files.map((name: string) => parseItem(name))
+    if (!miniMap) {
+      fetch('/api/gpx-files')
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.files)) {
+            const items: GpxItem[] = data.files.map((name: string) => parseItem(name))
 
-          // Determine default selection: first series, lowest race number
-          const grouped = items.reduce<Record<string, GpxItem[]>>((acc, it) => {
-            acc[it.seriesName] = acc[it.seriesName] || []
-            acc[it.seriesName].push(it)
-            return acc
-          }, {})
+            // Determine default selection: first series, lowest race number
+            const grouped = items.reduce<Record<string, GpxItem[]>>((acc, it) => {
+              acc[it.seriesName] = acc[it.seriesName] || []
+              acc[it.seriesName].push(it)
+              return acc
+            }, {})
 
-          Object.values(grouped).forEach(list => list.sort((a, b) => {
-            const aNum = a.raceNumber ?? Number.POSITIVE_INFINITY
-            const bNum = b.raceNumber ?? Number.POSITIVE_INFINITY
-            if (aNum !== bNum) return aNum - bNum
-            return a.label.localeCompare(b.label)
-          }))
+            Object.values(grouped).forEach(list => list.sort((a, b) => {
+              const aNum = a.raceNumber ?? Number.POSITIVE_INFINITY
+              const bNum = b.raceNumber ?? Number.POSITIVE_INFINITY
+              if (aNum !== bNum) return aNum - bNum
+              return a.label.localeCompare(b.label)
+            }))
 
-          const seriesNames = Object.keys(grouped).sort((a, b) => a.localeCompare(b))
-          const first = seriesNames.length > 0 && grouped[seriesNames[0]].length > 0
-            ? grouped[seriesNames[0]][0]
-            : null
+            const seriesNames = Object.keys(grouped).sort((a, b) => a.localeCompare(b))
+            const first = seriesNames.length > 0 && grouped[seriesNames[0]].length > 0
+              ? grouped[seriesNames[0]][0]
+              : null
 
-          setFiles(items)
-          setSelectedBaseName(first?.baseName || items[0]?.baseName || '')
-        } else {
-          throw new Error('Invalid files response')
-        }
-      })
-      .catch((error: unknown) => {
-        const message = error instanceof Error ? error.message : String(error)
-        setLoadingError(message)
-      })
-  }, [])
+            setFiles(items)
+            setSelectedBaseName(first?.baseName || items[0]?.baseName || '')
+          } else {
+            throw new Error('Invalid files response')
+          }
+        })
+        .catch((error: unknown) => {
+          const message = error instanceof Error ? error.message : String(error)
+          setLoadingError(message)
+        })
+    }
+  }, [miniMap])
 
   useEffect(() => {
     if (!selectedBaseName) return
@@ -369,9 +377,9 @@ export default function Map() {
   }
 
   return (
-    <div className={s.mapContainer}>
+    <div className={`${s.mapContainer} ${miniMap ? s.miniMap : s.full}`}>
       <Loader startColor={startColor} endColor={endColor} className={`${isMapReady ? 'hidden' : ''}`} />
-      <div className={`${s.controlPanel} ${showControlPanel ? '' : s.collapsed}`}>
+      {!miniMap && <div className={`${s.controlPanel} ${showControlPanel ? '' : s.collapsed}`}>
         <div className={s.cpHeader}>
           <label>Mapmaker <span className={s.version}>v0.1.0</span></label>
           <div className={s.collapseIconContainer}>
@@ -439,7 +447,7 @@ export default function Map() {
             placeholder="End color (#RRGGBB or name)"
           />
         </div>
-      </div>
+      </div>}
       <div ref={mapContainer} className={`${s.map} ${isMapReady ? s.mapReady : ''}`} />
     </div>
   )
