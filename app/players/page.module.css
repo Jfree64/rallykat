@@ -1,0 +1,77 @@
+/* Layout */
+.playersPage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.playersFilter {
+  margin-top: 4px;
+}
+
+.playersHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+  font-weight: 600;
+  padding: 8px 0;
+  border-bottom: 1px solid #6c6c6c;
+}
+
+.playersList {
+  display: flex;
+  flex-direction: column;
+}
+
+.playerItem {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid #282828;
+  text-decoration: none;
+  color: white;
+}
+
+.playerItem:hover {
+  cursor: pointer;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 1);
+}
+
+.player {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score {
+  color: #666;
+}
+
+/* Search */
+.searchBar {
+  position: relative;
+  max-width: 520px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: #bbb;
+}
+
+.instagram a {
+  color: #777;
+  text-decoration: none;
+}
+
+.instagram a:hover {
+  text-shadow: 0 0 10px #777;
+}

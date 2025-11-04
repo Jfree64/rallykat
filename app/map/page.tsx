@@ -350,17 +350,31 @@ export default function Map({ miniMap, defaultGpxUrl }: { miniMap: boolean, defa
         const zeroArea = ne.lng === sw.lng && ne.lat === sw.lat
         if (zeroArea) {
           map.current.setCenter(ne)
-          map.current.setZoom(Math.min(map.current.getMaxZoom(), 17))
+          map.current.setZoom(miniMap ? 17 : Math.min(map.current.getMaxZoom(), 17))
         } else {
-          const camera = map.current.cameraForBounds(bounds, {
-            padding: 200,
-            maxZoom: 18,
-            pitch: 45,
-          })
-          map.current.easeTo({
-            ...camera,
-            duration: 0
-          })
+          if (miniMap) {
+            const camera = map.current.cameraForBounds(bounds, {
+              padding: 2,
+              maxZoom: 17,
+              pitch: 0,
+            })
+            // Force flat, immediate fit for minimap
+            map.current.jumpTo({
+              center: (camera as any).center,
+              zoom: (camera as any).zoom,
+              bearing: 0,
+            })
+          } else {
+            const camera = map.current.cameraForBounds(bounds, {
+              padding: 200,
+              maxZoom: 18,
+              pitch: 45,
+            })
+            map.current.easeTo({
+              ...camera,
+              duration: 0
+            })
+          }
         }
       }
       setIsMapReady(true)

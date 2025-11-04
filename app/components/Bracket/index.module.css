@@ -192,3 +192,29 @@
   opacity: 0.4;
   filter: saturate(0.6);
 }
+
+.playerInfoHeader {
+  display: flex;
+  flex-direction: column;
+}
+
+.playerInfo {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #1a1f2b;
+  background: #0c0f14;
+  border-radius: 10px;
+  padding: 1.5rem 1rem;
+  width: 100%;
+  gap: 0.2rem;
+}
+
+.playerInfo p,
+.playerInfo h2 {
+  margin: 0;
+}
+
+.playerInfo label {
+  opacity: 0.5;
+  margin: 0.4rem 0 0;
+}

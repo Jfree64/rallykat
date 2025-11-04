@@ -33,6 +33,9 @@ export interface SanityPlayerRef {
   instagram: string
   efScore: number
   score: number
+  wins: number
+  losses: number
+  appearances: number
   slug: {
     current: string
   }
@@ -51,6 +54,14 @@ export interface SanityEventWithHeats extends SanityEvent {
   heats: SanityHeat[]
   mapUrl?: string
   mapName?: string
+  length?: number
+  courseType?: string
+  difficulty?: string
+  series?: {
+    _id: string
+    name: string
+    startDate: string
+  }
 }
 
 export interface SanityEventMapItem {
@@ -89,6 +100,9 @@ export async function getEventBySlugWithHeats(slug: string): Promise<SanityEvent
     emoji,
     slug,
     "mapUrl": map.asset->url,
+    length,
+    courseType,
+    difficulty,
     "series": *[_type == "series" && references(^._id)][0]{
       _id,
       name,
@@ -116,5 +130,56 @@ export async function getEventMapItems(): Promise<SanityEventMapItem[]> {
     "slug": slug.current
   } | order(seriesName asc, date asc)`
 
+  return await client.fetch(query)
+}
+
+export async function getPlayerById(_id: string): Promise<SanityPlayerRef | null> {
+  const query = `*[_type == "player" && _id == $id][0]{
+    _id,
+    name,
+    emoji,
+    handle,
+    nickname,
+    instagram,
+    score,
+    efScore,
+    "wins": count(*[_type == "heat" && winner._id == ^._id]),
+    "losses": count(*[_type == "heat" && players[]._id == ^._id && winner._id != ^._id]),
+    "appearances": count(*[_type == "heat" && players[]._id == ^._id])
+  }`
+  return await client.fetch(query, { id: _id })
+}
+
+export async function getPlayerBySlug(slug: string): Promise<SanityPlayerRef | null> {
+  const query = `*[_type == "player" && slug.current == $slug][0]{
+    _id,
+    name,
+    nickname,
+    emoji,
+    handle,
+    instagram,
+    score,
+    efScore,
+    "wins": count(*[_type == "heat" && winner._id == ^._id]),
+    "losses": count(*[_type == "heat" && players[]._id == ^._id && winner._id != ^._id]),
+    "appearances": count(*[_type == "heat" && players[]._id == ^._id])
+  }`
+  return await client.fetch(query, { slug: slug })
+}
+
+export async function getPlayers(): Promise<SanityPlayerRef[]> {
+  const query = `*[_type == "player"] | order(name asc) {
+    _id,
+    name,
+    nickname,
+    emoji,
+    handle,
+    instagram,
+    efScore,
+    "slug": slug.current,
+    "wins": count(*[_type == "heat" && winner._id == ^._id]),
+    "losses": count(*[_type == "heat" && players[]._id == ^._id && winner._id != ^._id]),
+    "appearances": count(*[_type == "heat" && players[]._id == ^._id])
+  } | order(efScore desc)`
   return await client.fetch(query)
 }

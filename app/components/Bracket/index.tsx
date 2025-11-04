@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import s from './index.module.css'
-import { getEventBySlugWithHeats, SanityEventWithHeats, SanityHeat } from '../../lib/sanity'
+import { SanityEventWithHeats, SanityHeat, SanityPlayerRef } from '../../lib/sanity'
+import MatchCard from './MatchCard'
+import PlayerInfo from './PlayerInfo'
 
 type GroupedByLevel = Array<{
   level: number
@@ -24,6 +26,7 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
   const [svgSize, setSvgSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
   const [connectors, setConnectors] = useState<Array<{ d: string; fromLevel: number; fromIndex: number; toLevel: number; toIndex: number }>>([])
   const [selectedPerson, setSelectedPerson] = useState<{ playerId: string; level: number } | null>(null)
+  const prevViewportWidthRef = useRef<number>(0)
 
   const allHeats: SanityHeat[] = useMemo(() => {
     if (heats) return heats
@@ -64,62 +67,114 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
     return undefined
   }, [selectedPerson, groupedByLevel, finalLevel])
 
+  const selectedPlayer = useMemo(() => {
+    if (!selectedPerson) return null
+    for (const { heats } of groupedByLevel) {
+      for (const heat of heats) {
+        const found = (heat.players || []).find(p => p && p._id === selectedPerson.playerId)
+        if (found) return found
+      }
+    }
+    return null
+  }, [selectedPerson, groupedByLevel])
+
+  const selectedPlayerStats = useMemo(() => {
+    if (!selectedPerson) return null
+    let appearances = 0
+    let wins = 0
+    groupedByLevel.forEach(({ heats }) => {
+      heats.forEach(heat => {
+        const inHeat = (heat.players || []).some(p => p && p._id === selectedPerson.playerId)
+        if (inHeat) {
+          appearances++
+          if (heat.winner && heat.winner._id === selectedPerson.playerId) wins++
+        }
+      })
+    })
+    const losses = Math.max(appearances - wins, 0)
+    return { appearances, wins, losses }
+  }, [selectedPerson, groupedByLevel])
+
   useLayoutEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const getCenterLeft = (el: HTMLElement) => {
-      const rect = el.getBoundingClientRect()
-      const crect = container.getBoundingClientRect()
-      const x = rect.left - crect.left + container.scrollLeft
-      const y = rect.top - crect.top + container.scrollTop + rect.height / 2
-      return { x, y }
-    }
+    const recalculate = () => {
+      const c = containerRef.current
+      if (!c) return
 
-    const getCenterRight = (el: HTMLElement) => {
-      const rect = el.getBoundingClientRect()
-      const crect = container.getBoundingClientRect()
-      const x = rect.right - crect.left + container.scrollLeft
-      const y = rect.top - crect.top + container.scrollTop + rect.height / 2
-      return { x, y }
-    }
-
-    const newConnectors: Array<{ d: string; fromLevel: number; fromIndex: number; toLevel: number; toIndex: number }> = []
-    setSvgSize({ width: container.scrollWidth, height: container.scrollHeight })
-
-    for (let col = 0; col < groupedByLevel.length - 1; col++) {
-      const prev = groupedByLevel[col]
-      const next = groupedByLevel[col + 1]
-      const nextCount = next.heats.length
-      for (let n = 0; n < nextCount; n++) {
-        const nextKey = `${next.level}-${n}`
-        const nextEl = nodeMapRef.current.get(nextKey) as HTMLElement | null
-        if (!nextEl) continue
-        const aIdx = n * 2
-        const bIdx = n * 2 + 1
-        const aEl = nodeMapRef.current.get(`${prev.level}-${aIdx}`) as HTMLElement | null
-        const bEl = nodeMapRef.current.get(`${prev.level}-${bIdx}`) as HTMLElement | null
-
-        const end = getCenterLeft(nextEl)
-        const addPath = (startEl: HTMLElement, fromIndex: number) => {
-          const start = getCenterRight(startEl)
-          const midX = (start.x + end.x) / 2
-          const d = `M ${start.x} ${start.y} C ${midX} ${start.y}, ${midX} ${end.y}, ${end.x} ${end.y}`
-          newConnectors.push({ d, fromLevel: prev.level, fromIndex, toLevel: next.level, toIndex: n })
-        }
-        if (aEl) addPath(aEl, aIdx)
-        if (bEl) addPath(bEl, bIdx)
+      const getCenterLeft = (el: HTMLElement) => {
+        const rect = el.getBoundingClientRect()
+        const crect = c.getBoundingClientRect()
+        const x = rect.left - crect.left + c.scrollLeft
+        const y = rect.top - crect.top + c.scrollTop + rect.height / 2
+        return { x, y }
       }
+
+      const getCenterRight = (el: HTMLElement) => {
+        const rect = el.getBoundingClientRect()
+        const crect = c.getBoundingClientRect()
+        const x = rect.right - crect.left + c.scrollLeft
+        const y = rect.top - crect.top + c.scrollTop + rect.height / 2
+        return { x, y }
+      }
+
+      const nextConnectors: Array<{ d: string; fromLevel: number; fromIndex: number; toLevel: number; toIndex: number }> = []
+
+      setSvgSize({ width: c.scrollWidth, height: c.scrollHeight })
+
+      for (let col = 0; col < groupedByLevel.length - 1; col++) {
+        const prev = groupedByLevel[col]
+        const next = groupedByLevel[col + 1]
+        const nextCount = next.heats.length
+        for (let n = 0; n < nextCount; n++) {
+          const nextKey = `${next.level}-${n}`
+          const nextEl = nodeMapRef.current.get(nextKey) as HTMLElement | null
+          if (!nextEl) continue
+          const aIdx = n * 2
+          const bIdx = n * 2 + 1
+          const aEl = nodeMapRef.current.get(`${prev.level}-${aIdx}`) as HTMLElement | null
+          const bEl = nodeMapRef.current.get(`${prev.level}-${bIdx}`) as HTMLElement | null
+
+          const end = getCenterLeft(nextEl)
+          const addPath = (startEl: HTMLElement, fromIndex: number) => {
+            const start = getCenterRight(startEl)
+            const midX = (start.x + end.x) / 2
+            const d = `M ${start.x} ${start.y} C ${midX} ${start.y}, ${midX} ${end.y}, ${end.x} ${end.y}`
+            nextConnectors.push({ d, fromLevel: prev.level, fromIndex, toLevel: next.level, toIndex: n })
+          }
+          if (aEl) addPath(aEl, aIdx)
+          if (bEl) addPath(bEl, bIdx)
+        }
+      }
+
+      setConnectors(nextConnectors)
     }
 
-    setConnectors(newConnectors)
+    // Initial calculation
+    prevViewportWidthRef.current = typeof window !== 'undefined' ? window.innerWidth : 0
+    recalculate()
 
+    let rAF = 0
     const onResize = () => {
-      setSvgSize({ width: container.scrollWidth, height: container.scrollHeight })
-      requestAnimationFrame(() => setConnectors(prev => [...prev]))
+      if (rAF) cancelAnimationFrame(rAF)
+      rAF = requestAnimationFrame(() => {
+        const c = containerRef.current
+        if (!c) return
+        const newViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 0
+        const newHeight = c.scrollHeight
+        setSvgSize({ width: c.scrollWidth, height: newHeight })
+        if (newViewportWidth !== prevViewportWidthRef.current) {
+          prevViewportWidthRef.current = newViewportWidth
+          recalculate()
+        }
+      })
     }
+
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('resize', onResize)
+    }
   }, [groupedByLevel])
 
   if (loading) return <div className={s.loading}>Loading bracket…</div>
@@ -172,6 +227,7 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
           </div>
         </div>
       ))}
+      <PlayerInfo selectedPlayer={selectedPlayer} selectedPlayerStats={selectedPlayerStats} selectedFinalRank={selectedFinalRank} />
       <svg
         className={s.connectorLayer}
         width={svgSize.width}
@@ -206,110 +262,3 @@ export default function Bracket({ eventSlug, heats, showHeaders = true }: Bracke
     </div>
   )
 }
-
-function MatchCard({ heat, refCb, isFinalRound, highlightKind, selectedPlayerId, onClickPlayer }: {
-  heat: SanityHeat,
-  refCb?: (el: HTMLDivElement | null) => void,
-  isFinalRound?: boolean,
-  highlightKind?: 'green' | 'red' | 'gold' | 'silver' | 'bronze',
-  selectedPlayerId?: string,
-  onClickPlayer?: (playerId: string) => void,
-}) {
-  const players = heat.players ?? []
-  const winnerId = heat.winner?._id
-  const minRows = 2
-  const totalRows = Math.max(players.length, minRows)
-  const ranksByIndex: Record<number, 1 | 2 | 3> = {}
-
-  if (isFinalRound) {
-    // Rank players for final: winner => 1, remaining in order => 2, 3
-    const presentIndexes = players
-      .map((p, i) => ({ p, i }))
-      .filter(({ p }) => !!p)
-      .map(({ i }) => i)
-
-    const winnerIndex = presentIndexes.find(i => players[i]?._id === winnerId)
-    if (winnerIndex !== undefined) {
-      ranksByIndex[winnerIndex] = 1
-      const others = presentIndexes.filter(i => i !== winnerIndex)
-      if (others[0] !== undefined) ranksByIndex[others[0]] = 2
-      if (others[1] !== undefined) ranksByIndex[others[1]] = 3
-    } else {
-      // If no winner yet, assign provisional order 1..3 by appearance
-      if (presentIndexes[0] !== undefined) ranksByIndex[presentIndexes[0]] = 1
-      if (presentIndexes[1] !== undefined) ranksByIndex[presentIndexes[1]] = 2
-      if (presentIndexes[2] !== undefined) ranksByIndex[presentIndexes[2]] = 3
-    }
-  }
-
-  const isDimmed = !!selectedPlayerId && !highlightKind
-  const matchClasses = [
-    s.match,
-    highlightKind === 'green' ? s.hiGreen : '',
-    highlightKind === 'red' ? s.hiRed : '',
-    highlightKind === 'gold' ? s.goldCard : '',
-    highlightKind === 'silver' ? s.silverCard : '',
-    highlightKind === 'bronze' ? s.bronzeCard : '',
-    isDimmed ? s.dimmed : '',
-  ].join(' ').trim()
-
-  return (
-    <div className={matchClasses} ref={refCb} onClick={(e) => e.stopPropagation()}>
-      <div className={s.metaRow}>
-        {heat.redemption && <span className={s.redemption}>Redemption</span>}
-      </div>
-      {Array.from({ length: totalRows }).map((_, i) => {
-        const player = players[i]
-        const isWinner = !!player && winnerId === player._id
-        const finalRank = isFinalRound ? ranksByIndex[i] : undefined
-        const isSelected = !!player && !!selectedPlayerId && player._id === selectedPlayerId
-        return (
-          <PlayerRow
-            key={i}
-            player={player}
-            isWinner={isWinner}
-            isTbd={!player}
-            isFinalRound={!!isFinalRound}
-            finalRank={finalRank}
-            linkHighlight={isSelected}
-            onClickPlayer={onClickPlayer}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
-function PlayerRow({ player, isWinner, isTbd, isFinalRound, finalRank, linkHighlight, onClickPlayer }: {
-  player?: SanityHeat['players'][number];
-  isWinner: boolean;
-  isTbd: boolean;
-  isFinalRound?: boolean;
-  finalRank?: 1 | 2 | 3;
-  linkHighlight?: boolean;
-  onClickPlayer?: (playerId: string) => void;
-}) {
-  if (!player) {
-    return (
-      <div className={`${s.playerRow} ${s.tbd}`}>TBD</div>
-    )
-  }
-
-  const rankClass = isFinalRound && finalRank ? (
-    finalRank === 1 ? s.gold : finalRank === 2 ? s.silver : s.bronze
-  ) : ''
-
-  const symbol = isFinalRound ? (
-    finalRank === 1 ? '👑' : finalRank === 2 ? '🥈' : finalRank === 3 ? '🥉' : undefined
-  ) : (isWinner ? '' : undefined)
-
-  return (
-    <div className={`${s.playerRow} ${isWinner ? s.winner : ''} ${rankClass} ${linkHighlight ? s.linkHighlight : ''}`} onClick={(e) => { e.stopPropagation(); onClickPlayer && onClickPlayer(player._id) }}>
-      <span className={s.playerEmoji}>{player.emoji}</span>
-      <span className={s.playerHandle}>{player.nickname || player.handle}</span>
-      {symbol && <span className={isFinalRound ? s.rankMark : s.winMark}>{symbol}</span>}
-    </div>
-  )
-}
-
-

@@ -101,6 +101,7 @@ export default function Nav() {
       </button>
       <div className={`${s.navCenter} ${isMenuOpen ? s.active : ''}`}>
         <Link href="/" className={s.navLink} onClick={() => setIsMenuOpen(false)}>Events</Link>
+        <Link href="/players" className={s.navLink} onClick={() => setIsMenuOpen(false)}>Players</Link>
         <Link href="/leaderboard" className={s.navLink} onClick={() => setIsMenuOpen(false)}>Leaderboard</Link>
         <Link href="/about" className={s.navLink} onClick={() => setIsMenuOpen(false)}>About</Link>
       </div>

@@ -29,6 +29,38 @@ export default {
       },
     },
     {
+      name: "length",
+      title: "Length (feet)",
+      type: "number",
+    },
+    {
+      name: "courseType",
+      title: "Type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Technical", value: "technical" },
+          { title: "Flowy", value: "flowy" },
+          { title: "Tight", value: "tight" },
+        ],
+      },
+      initialValue: "technical",
+    },
+    {
+      name: "difficulty",
+      title: "Difficulty Rating",
+      type: "string",
+      options: {
+        list: [
+          { title: "Easy", value: "easy" },
+          { title: "Medium", value: "medium" },
+          { title: "Hard", value: "hard" },
+          { title: "Expert", value: "expert" },
+        ],
+      },
+      initialValue: "easy",
+    },
+    {
       name: "slug",
       title: "Slug",
       type: "slug",

@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { client } from '../lib/sanity'
+import { client, getPlayers } from '../lib/sanity'
 import s from './page.module.css'
 import { romanize } from '../utils/romanize'
+import Link from 'next/link'
 
-interface Racer {
+interface Player {
   _id: string
   name: string
   emoji: string
@@ -13,13 +14,14 @@ interface Racer {
   score: number,
   efScore: number
   nickname: string
+  slug: string
 }
 
 export default function Leaderboard() {
-  const [players, setPlayers] = useState<Racer[]>([])
+  const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
 
-  const calculateRank = (index: number, players: Racer[]): number => {
+  const calculateRank = (index: number, players: Player[]): number => {
     if (index === 0) return 1
     const currentScore = players[index].efScore
     const previousScore = players[index - 1].efScore
@@ -49,7 +51,8 @@ export default function Leaderboard() {
           nickname,
           emoji,
           handle,
-          efScore
+          efScore,
+          "slug": slug.current
         }`
         const result = await client.fetch(query)
         const filteredResult = result.filter((player: any) => player.efScore > 0)
@@ -79,11 +82,11 @@ export default function Leaderboard() {
         {players.map((player, index) => {
           const rank = calculateRank(index, players)
           return (
-            <div key={player._id} className={s.playerItem}>
-              <span className={s.rank}>{rank}{getRankSuffix(rank)}</span>
-              <span className={s.player}>{player.emoji} {player.nickname}</span>
+            <Link href={`/players/${player.slug}`} key={player._id} className={s.playerItem}>
+              <span className={`${s.rank} ${rank <= 3 ? s.podium : ''}`}>{rank}{getRankSuffix(rank)}</span>
+              <span className={s.player}>{player.nickname}</span>
               <span className={s.score}>{romanize(player.efScore)}</span>
-            </div>
+            </Link>
           )
         })}
       </div>

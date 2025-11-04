@@ -45,12 +45,17 @@
   color: white;
   padding: 10px;
   transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .rank {
   font-family: cc-primal-scream, sans-serif;
   font-weight: 400;
   font-style: normal;
+  color: white;
+}
+
+.rank.podium {
   background: linear-gradient(to bottom, red, #FF7A00);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
