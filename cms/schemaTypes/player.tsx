@@ -2,6 +2,13 @@ export default {
   name: "player",
   title: "Player",
   type: "document",
+  fieldsets: [
+    {
+      name: "oldScores",
+      title: "Old Scores",
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     {
       name: "name",
@@ -11,6 +18,11 @@ export default {
     {
       name: "emoji",
       title: "Emoji",
+      type: "string",
+    },
+    {
+      name: "color",
+      title: "Car Color (hex, e.g. #FF7A00)",
       type: "string",
     },
     {
@@ -24,14 +36,21 @@ export default {
       type: "string",
     },
     {
+      name: "mwScore",
+      title: "Most Wanted Score",
+      type: "number",
+    },
+    {
       name: "efScore",
       title: "Empire Fall Score",
       type: "number",
+      fieldset: "oldScores",
     },
     {
       name: "score",
       title: "Season 1 Score",
       type: "number",
+      fieldset: "oldScores",
     },
     {
       name: "slug",
@@ -55,6 +74,11 @@ export default {
   ],
   orderings: [
     {
+      title: "Most Wanted Score",
+      name: "mwScore",
+      by: [{ field: "mwScore", direction: "desc" }],
+    },
+    {
       title: "Empire Fall Score",
       name: "efScore",
       by: [{ field: "efScore", direction: "desc" }],
@@ -63,15 +87,15 @@ export default {
   preview: {
     select: {
       name: "name",
-      efScore: "efScore",
+      mwScore: "mwScore",
       nickname: "nickname",
       emoji: "emoji",
     },
     prepare(selection: any) {
-      const { name, efScore, nickname, emoji } = selection
+      const { name, mwScore, nickname, emoji } = selection
       return {
         title: name,
-        subtitle: `${efScore} - ${nickname}`,
+        subtitle: `${mwScore ?? 0} - ${nickname}`,
         media: <span>{emoji} </span>,
       }
     },

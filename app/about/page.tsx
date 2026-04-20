@@ -1,4 +1,4 @@
-import s from './page.module.css'
+import s from "./page.module.css";
 
 export default function About() {
   return (
@@ -15,16 +15,52 @@ export default function About() {
             allowFullScreen
           ></iframe>
         </div>
-        <p>RallyKat is an open source, closed course bike race invented by <a href="https://www.instagram.com/rallykatworldwide/">Colin Valee</a>.</p>
-        <p>Racing is head-to-head in a single-elimination bracket and takes place on a short course that is designed to be as fun to watch as it is to race.</p>
+        <p>
+          RallyKat is an open source, closed course bike race invented by{" "}
+          <a href="https://www.instagram.com/rallykatworldwide/">Colin Valee</a>
+          .
+        </p>
+        <p>
+          Racing is head-to-head in a single-elimination bracket and takes place
+          on a short course that is designed to be as fun to watch as it is to
+          race.
+        </p>
         <p>Full documentation coming soon...</p>
         <br />
         <p>Local events:</p>
-        <p><a href="https://www.instagram.com/rallykat.nyc/">New York</a> - hosted by <a href="https://www.instagram.com/worstknowntime/">Jono Freeman</a></p>
-        <p><a href="https://www.instagram.com/rallykatworldwide/">Los Angeles</a> - hosted by <a href="https://www.instagram.com/nameyourfavoritebread/">Colin Valee</a></p>
-        <p><a href="https://www.instagram.com/russell_abernethy_/">Philadelphia</a> - hosted by <a href="https://www.instagram.com/russell_abernethy_/">Russell Abernethy</a></p>
+        <p>
+          <a href="https://www.instagram.com/rallykat.nyc/">New York</a> -
+          hosted by{" "}
+          <a href="https://www.instagram.com/worstknowntime/">Jono Freeman</a>
+        </p>
+        <p>
+          <a href="https://www.instagram.com/rallykatworldwide/">Los Angeles</a>{" "}
+          - hosted by{" "}
+          <a href="https://www.instagram.com/nameyourfavoritebread/">
+            Colin Valee
+          </a>
+        </p>
+        <p>
+          <a href="https://www.instagram.com/rallykat.phl/">Philadelphia</a> -
+          hosted by{" "}
+          <a href="https://www.instagram.com/russell_abernethy_/">
+            Russell Abernethy
+          </a>
+        </p>
+        <p>
+          <a href="https://www.instagram.com/rallykat.cgn/">Cologne</a> - hosted
+          by <a href="https://www.instagram.com/tkhasencore/">TK Hansen</a>
+        </p>
+        <p>
+          <a href="https://www.instagram.com/rallykat.cdmx/">Mexico City</a> -
+          hosted by{" "}
+          <a href="https://www.instagram.com/analala.escobar/">
+            Ana Lala Escobar
+          </a>
+        </p>
+
         <br />
       </div>
     </div>
-  )
+  );
 }
