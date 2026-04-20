@@ -20,12 +20,51 @@
   font-size: 3.5rem;
 }
 
+.leaderboard.mwLeaderboard {
+  background-color: #000;
+  font-family: 'Antique Olive Nord', 'Helvetica Neue', sans-serif;
+  font-style: italic;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+}
+
+.title {
+  font-family: 'Antique Olive Nord', 'Helvetica Neue', sans-serif;
+  font-style: italic;
+  font-size: 5rem;
+  text-transform: uppercase;
+  margin: 0 0 40px;
+  text-align: left;
+  width: 100%;
+  line-height: 0.95;
+  background: linear-gradient(
+    138deg,
+    #7A96AC 2.28%,
+    #EAEFF3 19.8%,
+    #C2D4E1 32.94%,
+    #FFF 50.16%,
+    #D4DEE5 62.15%,
+    #ABBDC8 78.69%,
+    #BCCAD7 95.24%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 12px rgba(195, 215, 230, 0.25));
+}
+
 .efLeaderboard .playerItem {
   grid-template-columns: 200px 400px 100px;
 }
 
 .springLeaderboard .playerItem {
   grid-template-columns: 140px 220px 100px;
+}
+
+.mwLeaderboard .playerItem {
+  grid-template-columns: 90px 300px 90px 1fr;
+  width: 100%;
 }
 
 .playersList {
@@ -48,6 +87,66 @@
   text-decoration: none;
 }
 
+.label {
+  font-family: 'Source Code Pro', monospace;
+  font-style: normal;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  color: #7A96AC;
+  text-transform: uppercase;
+}
+
+.metal {
+  background: linear-gradient(
+    138deg,
+    #7A96AC 2.28%,
+    #EAEFF3 19.8%,
+    #C2D4E1 32.94%,
+    #FFF 50.16%,
+    #D4DEE5 62.15%,
+    #ABBDC8 78.69%,
+    #BCCAD7 95.24%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold {
+  background: linear-gradient(
+    138deg,
+    #B8860B 2.28%,
+    #FFE680 19.8%,
+    #DDB325 32.94%,
+    #FFF6C4 50.16%,
+    #E8C547 62.15%,
+    #B8860B 78.69%,
+    #DAA520 95.24%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.bronze {
+  background: linear-gradient(
+    138deg,
+    #6B4423 2.28%,
+    #D8A06A 19.8%,
+    #B5703B 32.94%,
+    #F0C9A0 50.16%,
+    #C68B5A 62.15%,
+    #8B5A2B 78.69%,
+    #A06D3F 95.24%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
 .rank {
   font-family: cc-primal-scream, sans-serif;
   font-weight: 400;
@@ -63,9 +162,47 @@
   text-fill-color: transparent;
 }
 
+.mwLeaderboard .rank {
+  font-family: 'Antique Olive Nord', 'Helvetica Neue', sans-serif;
+  font-style: italic;
+}
+
 .playerItem:hover {
   cursor: pointer;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 1);
+  filter: drop-shadow(0 0 12px rgba(234, 239, 243, 0.6));
+}
+
+.track {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  border-bottom: 1px dashed rgba(122, 150, 172, 0.3);
+}
+
+.car {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  width: 56px;
+  height: 56px;
+  display: block;
+  transition: left 0.4s ease;
+  pointer-events: none;
+}
+
+.underglow {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-top: -10px;
+  transform: translateX(-50%);
+  width: 130%;
+  height: 18px;
+  border-radius: 50%;
+  filter: blur(7px);
+  pointer-events: none;
+  z-index: -1;
 }
 
 @media (max-width: 768px) {
@@ -76,6 +213,23 @@
   .efLeaderboard .playerItem {
     grid-template-columns: 100px 300px 100px;
     font-size: 2.3rem;
+  }
+
+  .mwLeaderboard .playerItem {
+    grid-template-columns: 100px 1fr 80px;
+    font-size: 2rem;
+    gap: 12px;
+    .label:last-child {
+      display: none;
+    }
+    .track {
+      grid-column: span 3;
+      width: 100%;
+    }
+  }
+
+  .mwLeaderboard .title {
+    font-size: 3rem;
   }
 
   .springLeaderboard .playerItem {

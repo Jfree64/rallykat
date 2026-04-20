@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fenix&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
 @import url("https://use.typekit.net/gbp5ryj.css");
+
+@font-face {
+  font-family: 'Antique Olive Nord';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/AntiqueOliveStd-NordItalic.otf') format('opentype');
+  font-display: swap;
+}
 
 @font-face {
   font-family: 'Nintendoid1';
