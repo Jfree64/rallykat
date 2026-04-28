@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { parseGPX, TrackPoint } from '../utils/gpxParser'
+import { parseGPX, TrackPoint, calculateDistanceFeet } from '../utils/gpxParser'
 import ColorPicker from '../components/ColorPicker'
 import s from './page.module.css'
 import type { GeoJSONSource } from 'mapbox-gl'
@@ -81,6 +81,11 @@ export default function Map({ miniMap, defaultGpxUrl }: { miniMap: boolean, defa
         setLoadingError(message)
       })
   }, [miniMap, defaultGpxUrl])
+
+  const distanceFeet = useMemo(
+    () => (trackPoints.length > 1 ? Math.round(calculateDistanceFeet(trackPoints)) : 0),
+    [trackPoints]
+  )
 
   const buildGradientExpression = () => ([
     'interpolate',
@@ -468,6 +473,12 @@ export default function Map({ miniMap, defaultGpxUrl }: { miniMap: boolean, defa
               onChange={handleUploadGpx}
             />
             <label htmlFor="gpxUpload" className={s.button}>Upload GPX</label>
+          </div>
+          <div className={s.cpSection}>
+            <label>Length</label>
+            <div className={s.lengthValue}>
+              {distanceFeet > 0 ? `${distanceFeet.toLocaleString()} ft` : '—'}
+            </div>
           </div>
           <ColorPicker
             label="Color 1"

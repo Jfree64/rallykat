@@ -160,6 +160,16 @@
   outline: 0;
 }
 
+.lengthValue {
+  color: white;
+  font-size: 14px;
+  padding: 0.5em 1em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
 .uploadRow {
   display: flex;
   align-items: center;
